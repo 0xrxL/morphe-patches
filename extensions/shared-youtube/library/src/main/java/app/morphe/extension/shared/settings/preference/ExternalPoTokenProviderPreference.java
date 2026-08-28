@@ -7,16 +7,12 @@
 
 package app.morphe.extension.shared.settings.preference;
 
-import static app.morphe.extension.shared.StringRef.str;
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
@@ -27,7 +23,7 @@ import app.morphe.extension.shared.settings.SharedYouTubeSettings;
 import app.morphe.extension.shared.spoof.SpoofVideoStreamsPatch;
 
 @SuppressWarnings({"deprecation", "unused"})
-public class ExternalPoTokenProviderAboutPreference extends Preference {
+public class ExternalPoTokenProviderPreference extends SwitchPreference {
 
     /**
      * Callback when the app is resumed. Used to enable preference switch after helper is installed.
@@ -37,7 +33,7 @@ public class ExternalPoTokenProviderAboutPreference extends Preference {
 
         public void onActivityResumed(@NonNull Activity activity) {
             Logger.printDebug(() -> "onActivityResumed");
-            updateUI();
+            setEnabled(SharedYouTubeSettings.EXTERNAL_POTOKEN_PROVIDER.isAvailable());
         }
 
         public void onActivityCreated(@NonNull Activity a, @Nullable Bundle b) {}
@@ -47,10 +43,6 @@ public class ExternalPoTokenProviderAboutPreference extends Preference {
         public void onActivitySaveInstanceState(@NonNull Activity a, @NonNull Bundle b) {}
         public void onActivityDestroyed(@NonNull Activity a) {}
     };
-
-    private static boolean isAvailable() {
-        return SharedYouTubeSettings.EXTERNAL_POTOKEN_PROVIDER.isAvailable();
-    }
 
     private void registerApplicationOnResumeCallback() {
         SpoofVideoStreamsPatch.getApplication().registerActivityLifecycleCallbacks(
@@ -76,38 +68,19 @@ public class ExternalPoTokenProviderAboutPreference extends Preference {
         unregisterApplicationOnResumeCallback();
     }
 
-    private void updateUI() {
-        String summaryKey = isAvailable()
-                ? "morphe_external_potoken_provider_settings_summary"
-                : "morphe_external_potoken_provider_about_summary";
-        setSummary(str(summaryKey));
-    }
-
-    @Override
-    protected void onClick() {
-        Intent intent;
-        if (isAvailable()) {
-            intent = new Intent();
-            intent.setClassName("app.morphe.pot.helper", "app.morphe.pot.helper.MainActivity");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        } else {
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://github.com/MorpheApp/PotHelper/releases/latest"));
-        }
-        getContext().startActivity(intent);
-    }
-
-    public ExternalPoTokenProviderAboutPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ExternalPoTokenProviderPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
-    public ExternalPoTokenProviderAboutPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+
+    public ExternalPoTokenProviderPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
-    public ExternalPoTokenProviderAboutPreference(Context context, AttributeSet attrs) {
+
+    public ExternalPoTokenProviderPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-    public ExternalPoTokenProviderAboutPreference(Context context) {
+
+    public ExternalPoTokenProviderPreference(Context context) {
         super(context);
     }
 }
-
